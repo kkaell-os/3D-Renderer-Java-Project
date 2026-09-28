@@ -1,346 +1,187 @@
-# \# 3D Renderer
+# 🧊 3D Renderer
 
-# 
+### *what if i just made the graphics engine myself?*
 
-# > \*what if i just made the graphics engine myself\*
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Swing](https://img.shields.io/badge/GUI-Swing-blue?style=for-the-badge)
+![Software Rendered](https://img.shields.io/badge/Rendering-100%25_Software-critical?style=for-the-badge)
+![Notepad++](https://img.shields.io/badge/Editor-Notepad++-90E59A?style=for-the-badge&logo=notepadplusplus&logoColor=black)
+![IDE](https://img.shields.io/badge/IDE-nope_💀-lightgrey?style=for-the-badge)
 
-# 
+**No Unity. No Unreal. No OpenGL doing the hard part for me.**
+Just Java, maths, and a text editor.
 
-# A little experiment where I'm figuring out how 3D rendering actually works by building a renderer in \*\*Java\*\*, basically from the ground up.
+---
 
-# 
+## 📖 What is this?
 
-# No Unity. No Unreal. No OpenGL doing everything for me.
+A small **software 3D renderer** built from the ground up in Java. It takes 3D points, transforms them with matrices, works out which pixels belong to each triangle, and paints them onto a Swing window, one pixel at a time.
 
-# 
+Right now it's a colourful 3D shape floating around in a window, and you can spin it with sliders.
 
-# Just Java, maths, and \*\*Notepad++\*\*.
+The end goal isn't a pretty shape. It's understanding **why** 3D rendering works, not just which library call makes it happen.
 
-# 
+```text
+        3D WORLD
+           │
+           ▼
+     ┌───────────┐
+     │  MATRICES │   rotate / transform every vertex
+     └─────┬─────┘
+           │
+           ▼
+      transformed
+       vertices
+           │
+           ▼
+     ┌───────────┐
+     │ TRIANGLES │   3 vertices = 1 face
+     └─────┬─────┘
+           │
+           ▼
+     rasterization    "which pixels are inside?"
+           │
+           ▼
+       Z-BUFFER       "which triangle is in front?"
+           │
+           ▼
+        PIXELS        BufferedImage → screen
+```
 
-# \---
+---
 
-# 
+## 🎓 The tutorial
 
-# \## `what is this?`
+I'm following **[How to Create Your Own Simple 3D Renderer](http://blog.rogach.org/2015/08/how-to-create-your-own-simple-3d-render.html)** by Rogach as my main guide.
 
-# 
+I'm using it to learn the concepts and structure, then experimenting with the code myself as I go. So yes, parts of this are tutorial-based. The point is to reach the stage where I can build and modify all of it **without** the tutorial open next to me.
 
-# I'm making a small software 3D renderer that takes 3D points, transforms them, figures out which pixels belong to each triangle, and draws them onto the screen.
+---
 
-# 
+## 🛠️ The setup
 
-# Right now it's basically a colourful 3D shape floating around in a Swing window.
+| | |
+|---|---|
+| **Language** | Java |
+| **GUI** | Java Swing |
+| **Renderer** | Pure software (CPU only) |
+| **Editor** | Notepad++ |
+| **IDE** | nope 💀 |
 
-# 
+I'm deliberately avoiding a full IDE. It's simpler, and I want to understand what's happening instead of having something hold my hand through every step.
 
-# The end goal is to understand \*\*why\*\* 3D rendering works, not just how to call a library that does it for me.
+---
 
-# 
+## ✨ What it does right now
 
-# ```text
+### 🔷 3D maths
+- `Vertex` and `Triangle` objects
+- X / Y / Z coordinates
+- 3×3 transformation matrices
+- Matrix multiplication
+- Heading (horizontal) rotation
+- Pitch (vertical) rotation
 
-# &#x20;       3D WORLD
+### 🎨 Rendering
+- Triangle rasterization
+- Barycentric coordinates
+- Z-buffering
+- Pixel-by-pixel drawing into a `BufferedImage`
 
-# &#x20;          │
+### 🎮 Controls
+- Horizontal rotation slider
+- Vertical rotation slider
 
-# &#x20;          ▼
+---
 
-# &#x20;     ┌───────────┐
+## 🧠 What I'm trying to understand
 
-# &#x20;     │  MATRICES │
+The interesting part isn't the final shape. It's everything that happens **between this:**
 
-# &#x20;     └─────┬─────┘
+```java
+new Vertex(100, 100, 100)
+```
 
-# &#x20;           │
+**and this:**
 
-# &#x20;           ▼
+```text
+████████████
+████████████
+████████████
+```
 
-# &#x20;     transformed
+The questions driving the whole project:
 
-# &#x20;       vertices
+- 🔹 How do three numbers become a point on a screen?
+- 🔹 How does the computer know which pixels are *inside* a triangle?
+- 🔹 How does it know which triangle is *in front*?
+- 🔹 How do matrices rotate an object in 3D?
 
-# &#x20;           │
+### Quick cheat sheet (my notes so far)
 
-# &#x20;           ▼
+**Rotation is just matrix multiplication.** Heading spins around the Y axis, pitch around the X axis:
 
-# &#x20;     ┌───────────┐
+```text
+Heading (Y axis)            Pitch (X axis)
+┌                 ┐         ┌                 ┐
+│  cos θ   0  −sin θ │      │  1     0      0    │
+│    0     1    0    │      │  0   cos φ  sin φ  │
+│  sin θ   0   cos θ │      │  0  −sin φ  cos φ  │
+└                 ┘         └                 ┘
+```
 
-# &#x20;     │ TRIANGLES │
+**Barycentric coordinates** describe any point as a weighted mix of a triangle's three corners. If all three weights are ≥ 0, the pixel is inside the triangle.
 
-# &#x20;     └─────┬─────┘
+**Z-buffer** keeps the closest depth seen so far for every pixel. A new pixel only gets drawn if it's closer than what's already there.
 
-# &#x20;           │
+---
 
-# &#x20;           ▼
+## 🚀 Running it
 
-# &#x20;    rasterization
+Grab the source, then from the project folder:
 
-# &#x20;           │
+```bash
+javac *.java
+java Main
+```
 
-# &#x20;           ▼
+> Swap `Main` for whichever class holds your `main` method. You just need a JDK installed.
 
-# &#x20;      Z-BUFFER
+---
 
-# &#x20;           │
+## 🗺️ Roadmap
 
-# &#x20;           ▼
+```text
+[x] Window
+[x] Vertices
+[x] Triangles
+[x] Transformation matrices
+[x] Heading rotation
+[x] Pitch rotation
+[x] Triangle rasterization
+[x] Barycentric coordinates
+[x] Z-buffer
+[ ] Perspective projection
+[ ] Camera movement
+[ ] Back-face culling
+[ ] Lighting
+[ ] Textures
+[ ] Load actual 3D models
+[ ] Probably break everything again
+```
 
-# &#x20;        PIXELS
+---
 
-# ```
+## 💭 Why?
 
-# 
+I'm into graphics and programming, but I don't want 3D to be a mysterious thing that just happens inside an engine. I want to know what's actually going on.
 
-# \---
+So this is me starting at the dumbest possible level:
 
-# 
+> **draw the damn triangle myself.**
 
-# \## `the tutorial`
+---
 
-# 
+### made with
 
-# I'm using \*\*\[How to Create Your Own Simple 3D Renderer](http://blog.rogach.org/2015/08/how-to-create-your-own-simple-3d-render.html)\*\* by Rogach as my main guide.
-
-# 
-
-# I'm following the tutorial to learn the concepts and structure, then experimenting with the code myself as I go.
-
-# 
-
-# So yeah, some of this is tutorial-based.
-
-# 
-
-# The point is to eventually reach the stage where I can build and modify this stuff without needing the tutorial open next to me.
-
-# 
-
-# \---
-
-# 
-
-# \## `the setup`
-
-# 
-
-# \*\*Language:\*\* Java
-
-# \*\*Editor:\*\* Notepad++
-
-# \*\*GUI:\*\* Java Swing
-
-# \*\*Renderer:\*\* Software-based
-
-# \*\*IDE:\*\* nope 💀
-
-# 
-
-# I'm deliberately using \*\*Notepad++\*\* for this instead of a full IDE.
-
-# 
-
-# Partly because it's simple.
-
-# 
-
-# Partly because I want to actually understand what's happening instead of having an IDE hold my hand through everything.
-
-# 
-
-# \---
-
-# 
-
-# \## `current stuff\*\*
-
-# 
-
-# \### 3D
-
-# 
-
-# \* `Vertex` objects
-
-# \* `Triangle` objects
-
-# \* X / Y / Z coordinates
-
-# \* 3×3 transformation matrices
-
-# \* Matrix multiplication
-
-# \* Heading rotation
-
-# \* Pitch rotation
-
-# 
-
-# \### Rendering
-
-# 
-
-# \* Triangle rasterization
-
-# \* Barycentric coordinates
-
-# \* Z-buffering
-
-# \* Pixel-by-pixel rendering
-
-# \* `BufferedImage`
-
-# 
-
-# \### Controls
-
-# 
-
-# \* Horizontal rotation slider
-
-# \* Vertical rotation slider
-
-# 
-
-# \---
-
-# 
-
-# \## `what i'm trying to understand`
-
-# 
-
-# The interesting part isn't really the final shape.
-
-# 
-
-# It's everything happening \*\*between this:\*\*
-
-# 
-
-# ```java
-
-# new Vertex(100, 100, 100)
-
-# ```
-
-# 
-
-# and this:
-
-# 
-
-# ```text
-
-# ████████████
-
-# ████████████
-
-# ████████████
-
-# ```
-
-# 
-
-# How do three numbers become a point on a screen?
-
-# 
-
-# How does a computer know which pixels belong inside a triangle?
-
-# 
-
-# How does it know which triangle is in front?
-
-# 
-
-# How do matrices rotate an object in 3D?
-
-# 
-
-# That's what I'm trying to figure out.
-
-# 
-
-# \---
-
-# 
-
-# \## `roadmap`
-
-# 
-
-# ```text
-
-# \[x] Window
-
-# \[x] Vertices
-
-# \[x] Triangles
-
-# \[x] Transformation matrices
-
-# \[x] Heading rotation
-
-# \[x] Pitch rotation
-
-# \[x] Triangle rasterization
-
-# \[x] Barycentric coordinates
-
-# \[x] Z-buffer
-
-# \[ ] Perspective projection
-
-# \[ ] Camera movement
-
-# \[ ] Back-face culling
-
-# \[ ] Lighting
-
-# \[ ] Textures
-
-# \[ ] Load actual 3D models
-
-# \[ ] Probably break everything again
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \## `why`
-
-# 
-
-# I'm interested in graphics and programming, but I don't want 3D graphics to just be some mysterious thing that happens inside an engine.
-
-# 
-
-# I want to know what's actually happening.
-
-# 
-
-# So this is me starting at the dumbest possible level:
-
-# 
-
-# \*\*draw the damn triangle myself.\*\*
-
-# 
-
-# \---
-
-# 
-
-# \### made with
-
-# 
-
-# `Java` · `Swing` · `Notepad++` · `math` · `trial \& error` · `probably too much caffeine`
-
-
-
+`Java` · `Swing` · `Notepad++` · `math` · `trial & error` · `probably too much caffeine` ☕
