@@ -30,7 +30,7 @@ public class DemoViewer {
 							  Color.RED));
 		tris.add(new Triangle(new Vertex(-100,100,-100),
 							  new Vertex(100,-100,-100),
-							  new Vertex(-100,100,100),
+							  new Vertex(100,100,100),
 							  Color.GREEN));
 		tris.add(new Triangle(new Vertex(-100,100,-100),
 							  new Vertex(100,-100,-100),
@@ -74,6 +74,37 @@ public class DemoViewer {
 					Vertex v1 = transform.transform(t.v1);
 					Vertex v2 = transform.transform(t.v2);
 					Vertex v3 = transform.transform(t.v3);
+					
+					Vertex ab = new Vertex(
+						v2.x - v1.x,
+						v2.y - v1.y,
+						v2.z - v1.z
+					);
+					
+					Vertex ac = new Vertex(
+						v3.x - v1.x,
+						v3.y - v1.y,
+						v3.z - v1.z
+					);
+					
+					Vertex norm = new Vertex(
+					ab.y * ac.z - ab.z * ac.y,
+					ab.z * ac.x - ab.x * ac.z,
+					ab.x * ac.y - ab.y * ac.x
+					);
+					
+					double normalLength = 
+						Math.sqrt(norm.x * norm.x + norm.y * norm.y + norm.z * norm.z);
+					
+					if (normalLength == 0){
+						continue;
+					}
+					
+					norm.x /= normalLength;
+					norm.y /= normalLength;
+					norm.z /= normalLength;
+					
+					double angleCos = Math.abs(norm.z);
 					
 					v1.x += getWidth()/2;
 					v1.y += getHeight()/2;
@@ -123,7 +154,7 @@ public class DemoViewer {
 									y * img.getWidth() + x;
 								
 								if (zBuffer[zIndex] < depth){
-									img.setRGB(x,y,t.color.getRGB());
+									img.setRGB(x,y,getShade(t.color,angleCos).getRGB());
 									zBuffer[zIndex] = depth;
 								}
 							}
@@ -142,6 +173,18 @@ public class DemoViewer {
 		
 		frame.setSize(400,400);
 		frame.setVisible(true);
+	}
+	
+	public static Color getShade(Color color, double shade){
+		double redLinear = Math.pow(color.getRed(), 2.4) * shade;
+		double greenLinear = Math.pow(color.getGreen(), 2.4) * shade;
+		double blueLinear = Math.pow(color.getBlue(), 2.4) * shade;
+
+		int red = (int) Math.pow(redLinear, 1/2.4);
+		int green = (int) Math.pow(greenLinear, 1/2.4);
+		int blue = (int) Math.pow(blueLinear, 1/2.4);
+
+		return new Color(red, green, blue);
 	}
 }
 
