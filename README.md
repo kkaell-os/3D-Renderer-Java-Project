@@ -17,6 +17,12 @@ Just Java, maths, and a text editor.
 
 A small **software 3D renderer** built from the ground up in Java. It takes 3D points, transforms them with matrices, works out which pixels belong to each triangle, and paints them onto a Swing window, one pixel at a time.
 
+<img width="477" height="485" alt="image" src="https://github.com/user-attachments/assets/9244f99d-f31a-4693-ae31-d35f5c6a7620" />
+<img width="475" height="485" alt="image" src="https://github.com/user-attachments/assets/5639072f-d3a5-4a09-8921-11c2909dcd6e" />
+<img width="479" height="481" alt="image" src="https://github.com/user-attachments/assets/f51a7a23-04b3-42ee-8a66-1c1b9c2c662f" />
+
+
+
 Right now it's a colourful 3D shape floating around in a window, and you can spin it with sliders.
 
 The end goal isn't a pretty shape. It's understanding **why** 3D rendering works, not just which library call makes it happen.
